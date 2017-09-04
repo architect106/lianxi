@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kaika.mapper.JournalMapper" >
+    <resultMap id="BaseResultMap" type="com.kaika.model.Journal" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="journal" property="journal" jdbcType="VARCHAR" />
+        <result column="press" property="press" jdbcType="VARCHAR" />
+        <result column="order_date" property="orderDate" jdbcType="VARCHAR" />
+        <result column="content" property="content" jdbcType="VARCHAR" />
+        <result column="deleted" property="deleted" jdbcType="INTEGER" />
+        <result column="image" property="image" jdbcType="VARCHAR" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id, journal, press, order_date, content, deleted, image
+    </sql>
+    <select id="getUseJournal" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List" />
+        from t_journal
+        where deleted = 2
+    </select>
+    <select id="listByCondition" resultMap="BaseResultMap" parameterType="com.kaika.model.Journal" >
+        select 
+        <include refid="Base_Column_List" />
+        from t_journal
+        <where >
+            <include refid="query_items" />
+        </where>
+    </select>
+    <sql id="query_items" >
+        <if test="id != null" >
+            id = ${id}
+        </if>
+        <if test="deleted != null" >
+            and deleted != ${deleted}
+        </if>
+    </sql>
+    <insert id="insertSelective" parameterType="com.kaika.model.Journal" >
+        insert into t_journal
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="id != null" >
+                id,
+            </if>
+            <if test="journal != null" >
+                journal,
+            </if>
+            <if test="press != null" >
+                press,
+            </if>
+            <if test="orderDate != null" >
+                order_date,
+            </if>
+            <if test="deleted != null" >
+                deleted,
+            </if>
+            <if test="content != null" >
+                content,
+            </if>
+            <if test="image != null" >
+                image,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="id != null" >
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="journal != null" >
+                #{journal,jdbcType=VARCHAR},
+            </if>
+            <if test="press != null" >
+                #{press,jdbcType=VARCHAR},
+            </if>
+            <if test="orderDate != null" >
+                #{orderDate,jdbcType=VARCHAR},
+            </if>
+            <if test="deleted != null" >
+                #{deleted,jdbcType=INTEGER},
+            </if>
+            <if test="content != null" >
+                #{content,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="image != null" >
+                #{image,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.kaika.model.Journal" >
+        update t_journal
+        <set >
+            <if test="journal != null" >
+                journal = #{journal,jdbcType=VARCHAR},
+            </if>
+            <if test="press != null" >
+                press = #{press,jdbcType=VARCHAR},
+            </if>
+            <if test="orderDate != null" >
+                order_date = #{orderDate,jdbcType=VARCHAR},
+            </if>
+            <if test="deleted != null" >
+                deleted = #{deleted,jdbcType=INTEGER},
+            </if>
+            <if test="content != null" >
+                content = #{content,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="image != null" >
+                image = #{image,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    
+    <update id="updateUseStatus" parameterType="com.kaika.model.Journal" >
+		update t_journal i 
+		set i.deleted = 2
+		where i.id = ${id};
+    </update>
+    
+    <update id="updateOtherStatus" parameterType="com.kaika.model.Journal" >
+    	update t_journal j 
+		set j.deleted = 1
+		where j.id in 
+		(select * from
+		(select k.id 
+		from t_journal k
+		where k.deleted != 0
+		and k.id != ${id}) a);
+    </update>
+    
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+        delete from t_journal
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+</mapper>
